@@ -1,27 +1,25 @@
+/* eslint-disable no-console */
 const express = require('express');
+const mongoClient = require('mongodb').MongoClient;
 const config = require('./config');
 const authMiddleware = require('./middleware/auth');
 const errorHandler = require('./middleware/error');
 const routes = require('./routes');
 const pkg = require('./package.json');
-const mongoClient = require("mongodb").MongoClient;
+
 
 const { port, dbUrl, secret } = config;
 const app = express();
 
 // TODO: Conección a la BD en mogodb
-var server = "mongodb://localhost:27017/localhost";
 
-    mongoClient.connect(server, function(error, db) {
-    if(error)
-    console.log("Error while connecting to database: ", error);
-    else
-    console.log("Connection established successfully");
+mongoClient.connect(dbUrl, (error, db) => {
+  if (error) { console.log('Error while connecting to database: ', error); } else { console.log('Connection established successfully'); }
 
-    //perform operations here
+  // perform operations here
 
-    db.close();
- })
+  db.close();
+});
 
 app.set('config', config);
 app.set('pkg', pkg);
