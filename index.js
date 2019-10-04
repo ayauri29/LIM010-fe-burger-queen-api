@@ -10,18 +10,17 @@ const { port, dbUrl, secret } = config;
 const app = express();
 
 // TODO: Conección a la BD en mogodb
-var server = "mongodb://localhost:27017/localhost";
 
-    mongoClient.connect(server, function(error, db) {
-    if(error)
+mongoClient.connect(dbUrl, function (error, db) {
+  if (error)
     console.log("Error while connecting to database: ", error);
-    else
+  else
     console.log("Connection established successfully");
 
-    //perform operations here
+  //perform operations here
 
-    db.close();
- })
+  db.close();
+})
 
 app.set('config', config);
 app.set('pkg', pkg);
