@@ -13,7 +13,7 @@ const app = express();
 
 // TODO: Conección a la BD en mogodb
 
-mongoClient.connect(dbUrl, (error, db) => {
+mongoClient.connect(dbUrl, { useNewUrlParser: true }, (error, db) => {
   if (error) { console.log('Error while connecting to database: ', error); } else { console.log('Connection established successfully'); }
 
   // perform operations here

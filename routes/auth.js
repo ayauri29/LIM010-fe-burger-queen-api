@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
+const dataBase = require('../index.js');
 
-const { secret } = config;
+const { secret, dbUrl } = config;
 
 /** @module auth */
 module.exports = (app, nextMain) => {
@@ -23,8 +24,8 @@ module.exports = (app, nextMain) => {
     if (!email || !password) {
       return next(400);
     }
-
     // TODO: autenticar a la usuarix
+
     next();
   });
 
