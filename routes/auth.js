@@ -1,7 +1,8 @@
+/* eslint-disable no-console */
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 
-const { secret } = config;
+const { secret, adminEmail, adminPassword } = config;
 
 /** @module auth */
 module.exports = (app, nextMain) => {
@@ -18,14 +19,28 @@ module.exports = (app, nextMain) => {
    * @auth No requiere autenticación
    */
   app.post('/auth', (req, resp, next) => {
-    const { email, password } = req.body;
+    console.log('algo ahí');
 
-    if (!email || !password) {
-      return next(400);
+    try {
+      const { email, password } = req.body;
+      console.log('TCL:  email, password', email, password);
+
+      if (!email || !password) {
+        return next(400);
+      }
+
+      // checking to make sure the user entered the correct username/password combo
+      if (email === adminEmail && password === adminPassword) {
+        // if user log in success, generate a JWT token for the user with a secret key
+        jwt.sign({ uid: email }, secret, { expiresIn: '1h' }, (err, token) => {
+          if (err) { console.log('ERROR!', err); }
+          return resp.status(200).send({ token });
+        });
+      }
+      console.log('ERROR: Could not log in');
+    } catch (error) {
+      console.log(error);
     }
-
-    // TODO: autenticar a la usuarix
-    next();
   });
 
   return nextMain();
