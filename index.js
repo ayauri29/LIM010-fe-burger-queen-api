@@ -11,33 +11,34 @@ const pkg = require('./package.json');
 const { port, dbUrl, secret } = config;
 const app = express();
 
-// TODO: Conección a la BD en mogodb
+let database;
 
 mongoClient.connect(dbUrl, { useNewUrlParser: true }, (error, db) => {
   if (error) { console.log('Error while connecting to database: ', error); } else { console.log('Connection established successfully'); }
 
+  database = db.db();
+
   // perform operations here
+  app.set('config', config);
+  app.set('pkg', pkg);
 
-  db.close();
-});
+  // parse application/x-www-form-urlencoded
+  app.use(express.urlencoded({ extended: false }));
+  app.use(express.json());
+  app.use(authMiddleware(secret));
 
-app.set('config', config);
-app.set('pkg', pkg);
+  // Registrar rutas
+  routes(app, (err) => {
+    if (err) {
+      throw err;
+    }
 
-// parse application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-app.use(authMiddleware(secret));
+    app.use(errorHandler);
 
-// Registrar rutas
-routes(app, (err) => {
-  if (err) {
-    throw err;
-  }
-
-  app.use(errorHandler);
-
-  app.listen(port, () => {
-    console.info(`App listening on port ${port}`);
+    app.listen(port, () => {
+      console.info(`App listening on port ${port}`);
+    });
   });
 });
+
+module.exports.getDatabase = () => database;

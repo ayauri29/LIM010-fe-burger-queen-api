@@ -1,7 +1,8 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-const dataBase = require('../index.js');
+const model = require('../models/user');
 
 const { secret, adminEmail, adminPassword } = config;
 
@@ -20,25 +21,27 @@ module.exports = (app, nextMain) => {
    * @auth No requiere autenticación
    */
   app.post('/auth', (req, resp, next) => {
-    console.log('algo ahí');
+    console.log('pasa a auth');
 
     try {
       const { email, password } = req.body;
-      console.log('TCL:  email, password', email, password);
 
       if (!email || !password) {
         return next(400);
       }
 
-      // checking to make sure the user entered the correct username/password combo
-      if (email === adminEmail && password === adminPassword) {
+      model.users().findOne({ email }).then((doc) => {
+        // checking to make sure the user entered the correct username/password combo
+        if (email === adminEmail && password === adminPassword) {
         // if user log in success, generate a JWT token for the user with a secret key
-        jwt.sign({ uid: email }, secret, { expiresIn: '1h' }, (err, token) => {
-          if (err) { console.log('ERROR!', err); }
-          return resp.status(200).send({ token });
-        });
-      }
-      console.log('ERROR: Could not log in');
+          jwt.sign({ uid: doc._id }, secret, { expiresIn: '1h' }, (err, token) => {
+            if (err) { console.log('ERROR!', err); }
+            return resp.status(200).send({ token });
+          });
+        } else {
+          console.log('ERROR: Could not log in');
+        }
+      });
     } catch (error) {
       console.log(error);
     }

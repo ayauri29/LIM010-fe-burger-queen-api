@@ -1,4 +1,6 @@
+/* eslint-disable no-console */
 const bcrypt = require('bcrypt');
+const model = require('../models/user');
 
 const {
   requireAuth,
@@ -11,6 +13,7 @@ const {
 
 
 const initAdminUser = (app, next) => {
+  // console.log('soy database ', main.getDatabase());
   const { adminEmail, adminPassword } = app.get('config');
   if (!adminEmail || !adminPassword) {
     return next();
@@ -22,7 +25,8 @@ const initAdminUser = (app, next) => {
     roles: { admin: true },
   };
 
-  // TODO: crear usuaria admin
+  model.users().insert(adminUser);
+
   next();
 };
 

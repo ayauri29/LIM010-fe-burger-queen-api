@@ -1,5 +1,7 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
 const jwt = require('jsonwebtoken');
+const model = require('../models/user');
 
 module.exports = (secret) => (req, resp, next) => {
   const { authorization } = req.headers;
@@ -18,10 +20,15 @@ module.exports = (secret) => (req, resp, next) => {
     if (err) {
       return next(403);
     }
-    console.log(decodedToken);
-    next();
+
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
+    model.users().findOne({ _id: decodedToken.uid }).then((doc) => {
+      console.log('verifico', doc);
+    });
   });
+
+
+  next();
 };
 
 
