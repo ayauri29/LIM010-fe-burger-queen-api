@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
 const jwt = require('jsonwebtoken');
+const { ObjectID } = require('mongodb');
 const model = require('../models/user');
 
 module.exports = (secret) => (req, resp, next) => {
@@ -22,8 +23,17 @@ module.exports = (secret) => (req, resp, next) => {
     }
 
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
-    model.users().findOne({ _id: decodedToken.uid }).then((doc) => {
+    model.users().findOne({ _id: new ObjectID(decodedToken.uid) }).then((doc) => {
       console.log('verifico', doc);
+      if (doc) {
+        // enviar datos
+        console.log('Si existe');
+        next();
+      } else {
+        // no existe el usuario
+        next(404);
+        console.log('no hay user');
+      }
     });
   });
 

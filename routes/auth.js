@@ -22,7 +22,6 @@ module.exports = (app, nextMain) => {
    */
   app.post('/auth', (req, resp, next) => {
     console.log('pasa a auth');
-
     try {
       const { email, password } = req.body;
 
