@@ -13,7 +13,6 @@ const {
 
 
 const initAdminUser = (app, next) => {
-  // console.log('soy database ', main.getDatabase());
   const { adminEmail, adminPassword } = app.get('config');
   if (!adminEmail || !adminPassword) {
     return next();
@@ -25,9 +24,16 @@ const initAdminUser = (app, next) => {
     roles: { admin: true },
   };
 
-  model.users().insert(adminUser);
+  model.users().createIndex({ email: 1 }, { unique: true }, (err, result) => {
+    if (err) {
+      return next(403);
+    }
+    if (result) {
+      model.users().insert(adminUser);
+    }
+  });
 
-  next();
+  return next();
 };
 
 
