@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-underscore-dangle */
 const path = require('path');
@@ -88,6 +89,7 @@ const checkAdminCredentials = () => fetch('/auth', {
   .then(({ token }) => Object.assign(__e2e, { adminToken: token }));
 
 
+// eslint-disable-next-line consistent-return
 const waitForServerToBeReady = (retries = 10) => new Promise((resolve, reject) => {
   if (!retries) {
     return reject(new Error('Server took to long to start'));
@@ -105,6 +107,7 @@ const waitForServerToBeReady = (retries = 10) => new Promise((resolve, reject) =
 });
 
 
+// eslint-disable-next-line consistent-return
 module.exports = () => new Promise((resolve, reject) => {
   if (process.env.REMOTE_URL) {
     console.info(`Running tests on remote server ${process.env.REMOTE_URL}`);

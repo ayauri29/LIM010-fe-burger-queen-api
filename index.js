@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const express = require('express');
 const mongoClient = require('mongodb').MongoClient;
+const bodyParser = require('body-parser');
 const config = require('./config');
 const authMiddleware = require('./middleware/auth');
 const errorHandler = require('./middleware/error');
@@ -23,6 +24,10 @@ mongoClient.connect(dbUrl, { useNewUrlParser: true }, (error, db) => {
   app.set('pkg', pkg);
 
   // parse application/x-www-form-urlencoded
+  app.use(bodyParser.urlencoded({
+    extended: true,
+  }));
+  app.use(bodyParser.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
   app.use(authMiddleware(secret));

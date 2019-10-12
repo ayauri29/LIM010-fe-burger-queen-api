@@ -1,10 +1,12 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const config = require('../config');
 const model = require('../models/user');
 
-const { secret, adminEmail, adminPassword } = config;
+const { secret } = config;
 
 /** @module auth */
 module.exports = (app, nextMain) => {
@@ -21,21 +23,23 @@ module.exports = (app, nextMain) => {
    * @auth No requiere autenticación
    */
   app.post('/auth', (req, resp, next) => {
-    console.log('pasa a auth');
+    console.log('pasa a auth', 'hace el post del usuario/login');
     try {
       const { email, password } = req.body;
 
       if (!email || !password) {
         return next(400);
       }
-
       model.users().findOne({ email }).then((doc) => {
+        console.log('soy doc', doc);
         // checking to make sure the user entered the correct username/password combo
-        if (email === adminEmail && password === adminPassword) {
+        console.log('soy bcrypt', bcrypt.compareSync(password, doc.password));
+        if (bcrypt.compareSync(password, doc.password)) {
         // if user log in success, generate a JWT token for the user with a secret key
           jwt.sign({ uid: doc._id }, secret, { expiresIn: '1h' }, (err, token) => {
+            console.log(token);
             if (err) { console.log('ERROR!', err); }
-            return resp.status(200).send({ token });
+            return resp.send({ token });
           });
         } else {
           console.log('ERROR: Could not log in');
@@ -44,6 +48,22 @@ module.exports = (app, nextMain) => {
     } catch (error) {
       console.log(error);
     }
+
+    /*     model.users().findOne({ email }).then((doc) => {
+        console.log('soy doc', doc);
+        bcrypt.compare(password, doc.password).then((passwordIsTrue) => {
+          // checking to make sure the user entered the correct username/password combo
+          if (email === doc.email && passwordIsTrue) {
+          // if user log in success, generate a JWT token for the user with a secret key
+            jwt.sign({ uid: doc._id }, secret, { expiresIn: '1h' }, (err, token) => {
+              if (err) { console.log('ERROR!', err); }
+              return resp.status(200).send({ token });
+            });
+          } else {
+            console.log('ERROR: Could not log in');
+          }
+        });
+      }); */
   });
 
   return nextMain();

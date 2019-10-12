@@ -1,6 +1,6 @@
-const {
+/* const {
   getUsers,
-} = require('../../controller/users');
+} = require('../../controller/users'); */
 
 describe('getUsers', () => {
   it('should get users collection', (done) => {
