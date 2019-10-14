@@ -23,7 +23,7 @@ module.exports = (app, nextMain) => {
    * @auth No requiere autenticación
    */
   app.post('/auth', (req, resp, next) => {
-    console.log('pasa a auth', 'hace el post del usuario/login');
+    // console.log('pasa a auth', 'hace el post del usuario/login');
     try {
       const { email, password } = req.body;
 
@@ -31,13 +31,13 @@ module.exports = (app, nextMain) => {
         return next(400);
       }
       model.users().findOne({ email }).then((doc) => {
-        console.log('soy doc', doc);
+        // console.log('soy doc', doc);
         // checking to make sure the user entered the correct username/password combo
-        console.log('soy bcrypt', bcrypt.compareSync(password, doc.password));
+        // console.log('soy bcrypt', bcrypt.compareSync(password, doc.password));
         if (bcrypt.compareSync(password, doc.password)) {
         // if user log in success, generate a JWT token for the user with a secret key
           jwt.sign({ uid: doc._id }, secret, { expiresIn: '1h' }, (err, token) => {
-            console.log(token);
+            // console.log(token);
             if (err) { console.log('ERROR!', err); }
             return resp.status(200).send({ token });
           });
