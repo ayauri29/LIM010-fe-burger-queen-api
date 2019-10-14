@@ -24,11 +24,13 @@ module.exports = (secret) => (req, resp, next) => {
     }
 
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
-    model.users().findOne({ _id: new ObjectID(decodedToken.uid) }).then((doc) => {
-      console.log('verifico', doc);
-      if (doc) {
-        next();
+    model.users().findOne({ _id: new ObjectID(decodedToken.uid) }).then((user) => {
+      if (user) {
         // enviar datos
+        const userAuth = { isAuth: { id: decodedToken.uid, email: user.email, password: user.password, rol: user.role } };
+        Object.assign(req.headers, userAuth);
+        console.log(req.headers.isAuth);
+        next();
       } else {
         // no existe el usuario
         next(404);
@@ -39,7 +41,8 @@ module.exports = (secret) => (req, resp, next) => {
 
 module.exports.isAuthenticated = (req) => {
   // TODO: decidir por la informacion del request si la usuaria esta autenticada
-  return false;
+  console.log('Soy req: ', req.headers.isAuth);
+  
 };
 
 

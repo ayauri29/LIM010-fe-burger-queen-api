@@ -39,7 +39,7 @@ module.exports = (app, nextMain) => {
           jwt.sign({ uid: doc._id }, secret, { expiresIn: '1h' }, (err, token) => {
             console.log(token);
             if (err) { console.log('ERROR!', err); }
-            return resp.send({ token });
+            return resp.status(200).send({ token });
           });
         } else {
           console.log('ERROR: Could not log in');
