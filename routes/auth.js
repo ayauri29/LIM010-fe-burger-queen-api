@@ -38,11 +38,12 @@ module.exports = (app, nextMain) => {
         // if user log in success, generate a JWT token for the user with a secret key
           jwt.sign({ uid: doc._id }, secret, { expiresIn: '1h' }, (err, token) => {
             // console.log(token);
-            if (err) { console.log('ERROR!', err); }
+            if (err) { // console.log('ERROR!', err);
+            }
             return resp.status(200).send({ token });
           });
         } else {
-          console.log('ERROR: Could not log in');
+          // console.log('ERROR: Could not log in');
         }
       });
     } catch (error) {
@@ -50,17 +51,17 @@ module.exports = (app, nextMain) => {
     }
 
     /*     model.users().findOne({ email }).then((doc) => {
-        console.log('soy doc', doc);
+        // console.log('soy doc', doc);
         bcrypt.compare(password, doc.password).then((passwordIsTrue) => {
           // checking to make sure the user entered the correct username/password combo
           if (email === doc.email && passwordIsTrue) {
           // if user log in success, generate a JWT token for the user with a secret key
             jwt.sign({ uid: doc._id }, secret, { expiresIn: '1h' }, (err, token) => {
-              if (err) { console.log('ERROR!', err); }
+              if (err) { // console.log('ERROR!', err); }
               return resp.status(200).send({ token });
             });
           } else {
-            console.log('ERROR: Could not log in');
+            // console.log('ERROR: Could not log in');
           }
         });
       }); */
