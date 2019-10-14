@@ -1,3 +1,6 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-shadow */
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 const bcrypt = require('bcrypt');
 const model = require('../models/user');
@@ -13,6 +16,7 @@ const {
 
 
 const initAdminUser = (app, next) => {
+  console.log('Primero creo el user');
   const { adminEmail, adminPassword } = app.get('config');
   if (!adminEmail || !adminPassword) {
     return next();
@@ -26,14 +30,13 @@ const initAdminUser = (app, next) => {
 
   model.users().createIndex({ email: 1 }, { unique: true }, (err, result) => {
     if (err) {
-      return next(403);
-    }
-    if (result) {
+      next(403);
+    } else if (result) {
+      console.log('el usuario se creo ');
       model.users().insert(adminUser);
+      next();
     }
   });
-
-  return next();
 };
 
 
@@ -57,7 +60,8 @@ const initAdminUser = (app, next) => {
  * Es por lo anterior que siempre veremos los argumentos request, response y
  * next en nuestros middlewares y rutas. Cada una de estas funciones tendrá
  * la oportunidad de acceder a la consulta (request) y hacerse cargo de enviar
- * una respuesta (rompiendo la cadena), o delegar la consulta a la siguiente
+ * una respuesta (rompiendo la cadena), o
+ * delegar la consulta a la siguiente
  * función en la cadena (invocando next). De esta forma, la petición (request)
  * va pasando a través de las funciones, así como también la respuesta
  * (response).
