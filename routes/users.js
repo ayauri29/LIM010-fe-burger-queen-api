@@ -16,7 +16,7 @@ const {
 
 
 const initAdminUser = (app, next) => {
-  console.log('Primero creo el user');
+  // console.log('Primero creo el user');
   const { adminEmail, adminPassword } = app.get('config');
   if (!adminEmail || !adminPassword) {
     return next();
@@ -32,7 +32,7 @@ const initAdminUser = (app, next) => {
     if (err) {
       next(403);
     } else if (result) {
-      console.log('el usuario se creo ');
+      // console.log('el usuario se creo ');
       model.users().insert(adminUser);
       next();
     }
@@ -130,7 +130,7 @@ module.exports = (app, next) => {
    * @code {401} si no hay cabecera de autenticación
    * @code {403} si ya existe usuaria con ese `email`
    */
-  app.post('/users', createUsers);
+  app.post('/users', requireAdmin, createUsers);
 
   /**
    * @name PUT /users

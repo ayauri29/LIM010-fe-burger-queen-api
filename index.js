@@ -16,7 +16,6 @@ let database;
 
 mongoClient.connect(dbUrl, { useNewUrlParser: true }, (error, db) => {
   if (error) { console.log('Error while connecting to database: ', error); } else { console.log('Connection established successfully'); }
-
   database = db.db();
 
   // perform operations here
