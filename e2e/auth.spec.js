@@ -1,20 +1,10 @@
 const config = require('../config');
-const mongoClient = require('mongodb').MongoClient;
 
-const { port, dbUrl, secret } = config;
 const { fetch, fetchWithAuth } = process;
 
+console.log('aaaaaaaaaaaaaaaaaaaaaaaaaa');
 
 describe('POST /auth', () => {
-  beforeAll(async () => {
-    await mongoClient.connect(dbUrl, { useNewUrlParser: true, useCreateIndex: true }, (err) => {
-      if (err) {
-        console.error(err);
-        process.exit(1);
-      }
-    });
-  });
-
   it('should respond with 400 when email and password missing', () => (
     fetch('/auth', { method: 'POST' })
       .then((resp) => expect(resp.status).toBe(400))

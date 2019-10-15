@@ -7,18 +7,23 @@ module.exports = {
     next();
     // console.log(req, res, next);
   },
-  createUsers: (req, res) => {
-    // falta verificar si ya existe el user
-    // console.log('?Usuario creado?');
-    // console.log(req.body);
+  createUsers: (req, res, next) => {
     const { email, password } = req.body;
-    // console.log(email, password);
+
     const user = {
       email,
       password: bcrypt.hashSync(password, 10),
       roles: { admin: false },
     };
-    model.users().insertOne(user);
-    res.send({ sucess: true });
+    // falta verificar si ya existe el user
+    model.users().findOne({ email }).then((doc) => {
+      if (!doc) {
+        model.users().insertOne(user);
+        res.send({ sucess: true });
+        console.log('fiiiiiiiiggggggn');
+      } else {
+        next(403);
+      }
+    });
   },
 };

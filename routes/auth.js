@@ -31,10 +31,9 @@ module.exports = (app, nextMain) => {
         return next(400);
       }
       model.users().findOne({ email }).then((doc) => {
-        // console.log('soy doc', doc);
-        // checking to make sure the user entered the correct username/password combo
-        // console.log('soy bcrypt', bcrypt.compareSync(password, doc.password));
-        if (bcrypt.compareSync(password, doc.password)) {
+        if (!doc) {
+          next(404);
+        } else if (bcrypt.compareSync(password, doc.password)) {
         // if user log in success, generate a JWT token for the user with a secret key
           jwt.sign({ uid: doc._id }, secret, { expiresIn: '1h' }, (err, token) => {
             // console.log(token);
@@ -43,6 +42,7 @@ module.exports = (app, nextMain) => {
             return resp.status(200).send({ token });
           });
         } else {
+          next(401);
           // console.log('ERROR: Could not log in');
         }
       });
