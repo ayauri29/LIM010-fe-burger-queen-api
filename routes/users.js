@@ -33,7 +33,7 @@ const initAdminUser = (app, next) => {
       next(403);
     } else if (result) {
       // console.log('el usuario se creo ');
-      model.users().insert(adminUser);
+      model.users().insertOne(adminUser);
       next();
     }
   });

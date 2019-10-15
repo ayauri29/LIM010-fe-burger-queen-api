@@ -18,7 +18,7 @@ module.exports = {
     // falta verificar si ya existe el user
     model.users().findOne({ email }).then((doc) => {
       if (!doc) {
-        model.users().insert(user);
+        model.users().insertOne(user);
         res.send({ sucess: true });
         console.log('fiiiiiiiiggggggn');
       } else {
