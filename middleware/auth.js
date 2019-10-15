@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable consistent-return */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
@@ -26,12 +27,12 @@ module.exports = (secret) => (req, resp, next) => {
     model.users().findOne({ _id: new ObjectID(decodedToken.uid) }).then((user) => {
       if (user) {
         // enviar datos
-        const userAuth = {
-          isAuth: {
-            id: decodedToken.uid, email: user.email, password: user.password, rol: user.role,
+        const userVerify = {
+          isVerify: {
+            id: decodedToken.uid, email: user.email, password: user.password, role: user.roles,
           },
         };
-        Object.assign(req.headers, userAuth);
+        Object.assign(req.headers, userVerify);
         // console.log(req.headers.isAuth);
         next();
       } else {
@@ -42,14 +43,12 @@ module.exports = (secret) => (req, resp, next) => {
   });
 };
 
-module.exports.isAuthenticated = (req) => {
-  // TODO: decidir por la informacion del request si la usuaria esta autenticada
-  // console.log('Soy req: ', req.headers.isAuth);
-
-};
+// TODO: decidir por la informacion del request si la usuaria esta autenticada
+module.exports.isAuthenticated = (req) => req.headers.isVerify;
 
 // TODO: decidir por la informacion del request si la usuaria es admin
-module.exports.isAdmin = (req) => false;
+module.exports.isAdmin = (req) => req.headers.isVerify.role.admin;
+
 module.exports.requireAuth = (req, resp, next) => (
   (!module.exports.isAuthenticated(req))
     ? next(401)
@@ -57,7 +56,6 @@ module.exports.requireAuth = (req, resp, next) => (
 );
 
 
-// eslint-disable-next-line no-nested-ternary
 module.exports.requireAdmin = (req, resp, next) => ((!module.exports.isAuthenticated(req))
   ? next(401)
   : (!module.exports.isAdmin(req))

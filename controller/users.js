@@ -18,7 +18,7 @@ module.exports = {
       password: bcrypt.hashSync(password, 10),
       roles: { admin: false },
     };
-    model.users().insert(user);
+    model.users().insertOne(user);
     res.send({ sucess: true });
   },
 };
