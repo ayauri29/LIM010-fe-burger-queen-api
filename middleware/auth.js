@@ -47,7 +47,7 @@ module.exports = (secret) => (req, resp, next) => {
 module.exports.isAuthenticated = (req) => req.headers.isVerify;
 
 // TODO: decidir por la informacion del request si la usuaria es admin
-module.exports.isAdmin = (req) => req.headers.isVerify.role;
+module.exports.isAdmin = (req) => req.headers.isVerify.role.admin;
 
 module.exports.requireAuth = (req, resp, next) => (
   (!module.exports.isAuthenticated(req))
