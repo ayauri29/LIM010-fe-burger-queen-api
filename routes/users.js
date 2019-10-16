@@ -11,7 +11,7 @@ const {
 } = require('../middleware/auth');
 
 const {
-  getUsers, createUsers,
+  getUsers, createUsers, getUsersById,
 } = require('../controller/users');
 
 
@@ -108,8 +108,8 @@ module.exports = (app, next) => {
    * @code {403} si no es ni admin o la misma usuaria
    * @code {404} si la usuaria solicitada no existe
    */
-  app.get('/users/:uid', requireAuth, (req, resp) => {
-  });
+
+  app.get('/users/:uid', requireAuth, getUsersById);
 
   /**
    * @name POST /users
@@ -154,6 +154,12 @@ module.exports = (app, next) => {
    * @code {403} una usuaria no admin intenta de modificar sus `roles`
    * @code {404} si la usuaria solicitada no existe
    */
+
+  // estrategia de busqueda y actualizacion
+  // buscar el registro a actualizar
+  // encuentra y modifica
+  // update(lo que quiere encoontrar, la actualizacion)
+  // si falla devuelve 404
   app.put('/users/:uid', requireAuth, (req, resp, next) => {
   });
 

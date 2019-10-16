@@ -1,9 +1,14 @@
 /* eslint-disable no-console */
 const bcrypt = require('bcrypt');
+const { ObjectID } = require('mongodb');
 const model = require('../models/user');
 
 module.exports = {
   getUsers: (req, res, next) => {
+    // skip = (numero de paginas - 1)*limit;
+    // count / limit = paginas
+    // link => url query con prev, next
+    // res.headers()
     model.users().find().toArray((error, users) => {
       if (error) {
         next(404);
@@ -38,6 +43,22 @@ module.exports = {
       } else {
         next(403);
       }
+    });
+  },
+  getUsersById: (req, res, next) => {
+    console.log(req.params);
+    const reqParam = req.params.uid;
+    let query;
+    if (reqParam.indexOf('@') === -1) {
+      // caso id
+      query = new ObjectID(reqParam);
+    } else {
+      // caso email
+      query = reqParam;
+    }
+    console.log(query);
+    model.users().findOne({ query }).then((user) => {
+      console.log(user);
     });
   },
 };
