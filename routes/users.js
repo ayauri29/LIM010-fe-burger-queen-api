@@ -11,7 +11,7 @@ const {
 } = require('../middleware/auth');
 
 const {
-  getUsers, createUsers, getUsersById,
+  getUsers, createUsers, getUsersById, putUserById, deleteUserById,
 } = require('../controller/users');
 
 
@@ -160,8 +160,7 @@ module.exports = (app, next) => {
   // encuentra y modifica
   // update(lo que quiere encoontrar, la actualizacion)
   // si falla devuelve 404
-  app.put('/users/:uid', requireAuth, (req, resp, next) => {
-  });
+  app.put('/users/:uid', requireAuth, putUserById);
 
   /**
    * @name DELETE /users
@@ -179,8 +178,7 @@ module.exports = (app, next) => {
    * @code {403} si no es ni admin o la misma usuaria
    * @code {404} si la usuaria solicitada no existe
    */
-  app.delete('/users/:uid', requireAuth, (req, resp, next) => {
-  });
+  app.delete('/users/:uid', requireAuth, deleteUserById);
 
   initAdminUser(app, next);
 };

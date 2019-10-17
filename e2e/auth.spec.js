@@ -2,8 +2,6 @@ const config = require('../config');
 
 const { fetch, fetchWithAuth } = process;
 
-console.log('aaaaaaaaaaaaaaaaaaaaaaaaaa');
-
 describe('POST /auth', () => {
   it('should respond with 400 when email and password missing', () => (
     fetch('/auth', { method: 'POST' })

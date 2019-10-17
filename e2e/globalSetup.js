@@ -63,7 +63,6 @@ const createTestUser = () => fetchAsAdmin('/users', {
   body: __e2e.testUserCredentials,
 })
   .then((resp) => {
-    console.log(resp);
     if (resp.status !== 200) {
       throw new Error('Could not create test user');
     }
@@ -152,7 +151,6 @@ module.exports = () => new Promise((resolve, reject) => {
       .then(checkAdminCredentials)
       .then(createTestUser)
       .then((res) => {
-        console.log('fffffffffffffff', res);
         resolve(res);
       })
       .catch((err) => {

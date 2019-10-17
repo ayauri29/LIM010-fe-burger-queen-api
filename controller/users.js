@@ -2,6 +2,7 @@
 const bcrypt = require('bcrypt');
 const { ObjectID } = require('mongodb');
 const model = require('../models/user');
+const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
 module.exports = {
   getUsers: (req, res, next) => {
@@ -39,26 +40,40 @@ module.exports = {
       if (!doc) {
         model.users().insertOne(user);
         res.send({ sucess: true });
-        console.log('Nuevo usuario insertado');
       } else {
         next(403);
       }
     });
   },
   getUsersById: (req, res, next) => {
-    console.log(req.params);
     const reqParam = req.params.uid;
     let query;
     if (reqParam.indexOf('@') === -1) {
-      // caso id
-      query = new ObjectID(reqParam);
+      query = { _id: new ObjectID(reqParam) };
     } else {
-      // caso email
-      query = reqParam;
+      query = { email: reqParam };
     }
-    console.log(query);
-    model.users().findOne({ query }).then((user) => {
-      console.log(user);
-    });
+
+    if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam || isAuthenticated(req).email === reqParam)) {
+      next(403);
+    } else {
+      model.users().findOne(query).then((user) => {
+        if (!user) {
+          next(404);
+        } else {
+          return res.status(200).send({
+            _id: user.id,
+            email: user.email,
+            roles: user.roles,
+          });
+        }
+      });
+    }
+  },
+  putUserById: (req, res, next) => {
+    // console.log('Put', req.body);
+  },
+  deleteUserById: (req, res, next) => {
+
   },
 };
