@@ -45,7 +45,6 @@ describe('GET /users', () => {
   it('should get users with pagination', () => (
     fetchAsAdmin('/users?limit=1')
       .then((resp) => {
-        console.log('Soy resp pagination', resp);
         expect(resp.status).toBe(200);
         return resp.json().then((json) => ({ headers: resp.headers, json }));
       })

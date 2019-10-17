@@ -6,18 +6,29 @@ const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
 module.exports = {
   getUsers: (req, res, next) => {
+    console.log(req.query);
+    const limit = parseInt(req.query.limit, 10);
+    const page = parseInt(req.query.page, 10);
+    const link = '/users?limit=10&page=9';
+    model.users().countDocuments((err, count) => {
+      console.log(count);
+      const numberPages = count / limit;
+      const skip = (numberPages - 1) * limit;
+      model.users().find().skip(skip).limit(limit)
+        .toArray((error, users) => {
+          console.log(users);
+          if (error) {
+            next(404);
+            throw error;
+          } else {
+            res.send(users);
+          }
+        });
+    });
     // skip = (numero de paginas - 1)*limit;
     // count / limit = paginas
     // link => url query con prev, next
     // res.headers()
-    model.users().find().toArray((error, users) => {
-      if (error) {
-        next(404);
-        throw error;
-      } else {
-        res.send(users);
-      }
-    });
   },
   createUsers: (req, res, next) => {
     const { email, password } = req.body;
@@ -35,7 +46,6 @@ module.exports = {
       password: bcrypt.hashSync(password, 10),
       roles: { admin: false },
     };
-    // falta verificar si ya existe el user
     model.users().findOne({ email }).then((doc) => {
       if (!doc) {
         model.users().insertOne(user);
