@@ -6,14 +6,23 @@ const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
 module.exports = {
   getUsers: (req, res, next) => {
-    console.log(req.query);
+    console.log('page', req.query.page);
+    console.log('limit', req.query.limit);
     const limit = parseInt(req.query.limit, 10);
     const page = parseInt(req.query.page, 10);
-    const link = '/users?limit=10&page=9';
+
+
     model.users().countDocuments((err, count) => {
-      console.log(count);
-      const numberPages = count / limit;
+      console.log('Cantidad de documentos', count);
+      const numberPages = Math.ceil(count / limit);
       const skip = (numberPages - 1) * limit;
+
+      const firstPage = `</users?limit=${limit}&page=${1}>; rel="first"`;
+      const prevPage = `</users?limit=${limit}&page=${page - 1}>; rel="prev"`;
+      const nextPage = `</users?limit=${limit}&page=${page + 1}>; rel="next"`;
+      const lastPage = `</users?limit=${limit}&page=${numberPages}>; rel="last"`;
+
+      res.setHeader('link', `${firstPage}, ${prevPage}, ${nextPage}, ${lastPage}`);
       model.users().find().skip(skip).limit(limit)
         .toArray((error, users) => {
           console.log(users);
@@ -25,6 +34,7 @@ module.exports = {
           }
         });
     });
+
     // skip = (numero de paginas - 1)*limit;
     // count / limit = paginas
     // link => url query con prev, next
