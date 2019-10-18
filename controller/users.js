@@ -6,8 +6,6 @@ const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
 module.exports = {
   getUsers: (req, res, next) => {
-    console.log('page', req.query.page);
-    console.log('limit', req.query.limit);
     const limit = parseInt(req.query.limit, 10) || 10;
     const page = parseInt(req.query.page, 10) || 1;
 
@@ -55,12 +53,11 @@ module.exports = {
       roles: { admin: false },
     };
     model.users().findOne({ email }).then((doc) => {
-      if (!doc) {
-        model.users().insertOne(user);
-        res.send({ sucess: true });
-      } else {
+      if (doc) {
         next(403);
       }
+      model.users().insertOne(user);
+      return res.status(200).send({ success: true });
     });
   },
   getUsersById: (req, res, next) => {
@@ -73,7 +70,7 @@ module.exports = {
     }
 
     if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
-    || isAuthenticated(req).email === reqParam)) {
+      || isAuthenticated(req).email === reqParam)) {
       next(403);
     } else {
       model.users().findOne(query).then((user) => {
@@ -107,20 +104,52 @@ module.exports = {
     }
     // Verifico que el usuario sea el mismo que quiere cambiar o sea admin
     if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
-    || isAuthenticated(req).email === reqParam)) {
+      || isAuthenticated(req).email === reqParam)) {
       next(403);
     } else {
-      // Aqui se modifica
-      model.users().updateOne(query, {
-        body: { email, password, roles: { admin: roles.admin } },
-      }, (err, user) => {
-        console.log('usuario modificado', user);
+      model.users().findOne(query).then((user) => {
+        if (!user) {
+          next(404);
+        } else {
+          const newUser = {
+            _id: user.id,
+            email: email || user.email,
+            password: bcrypt.hashSync(password, 10) || user.password,
+            roles: user.roles,
+          };
+          model.users().updateOne(query, { $set: newUser }, (err, result) => {
+            if (err) {
+              console.log('No se cambiaron los datos');
+            } else {
+              console.log('datos cambiados', result);
+            }
+          });
+        }
       });
-
-      next();
     }
   },
   deleteUserById: (req, res, next) => {
+    const reqParam = req.params.uid;
+    let query;
+    if (reqParam.indexOf('@') === -1) {
+      query = { _id: new ObjectID(reqParam) };
+    } else {
+      query = { email: reqParam };
+    }
 
+    if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
+      || isAuthenticated(req).email === reqParam)) {
+      next(403);
+    } else {
+      model.users().findOne(query).then((user) => {
+        if (!user) {
+          next(404);
+        }
+        model.users().deleteOne(query, (err, obj) => {
+          console.log('Eliminado', obj);
+        });
+        // debemos retornar user :()
+      });
+    }
   },
 };
