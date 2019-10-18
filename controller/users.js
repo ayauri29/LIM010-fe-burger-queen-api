@@ -8,28 +8,26 @@ module.exports = {
   getUsers: (req, res, next) => {
     console.log('page', req.query.page);
     console.log('limit', req.query.limit);
-    const limit = parseInt(req.query.limit, 10);
-    const page = parseInt(req.query.page, 10);
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const page = parseInt(req.query.page, 10) || 1;
 
 
     model.users().countDocuments((err, count) => {
-      console.log('Cantidad de documentos', count);
       const numberPages = Math.ceil(count / limit);
       const skip = (numberPages - 1) * limit;
 
-      const firstPage = `</users?limit=${limit}&page=${1}>; rel="first"`;
-      const prevPage = `</users?limit=${limit}&page=${page - 1}>; rel="prev"`;
-      const nextPage = `</users?limit=${limit}&page=${page + 1}>; rel="next"`;
-      const lastPage = `</users?limit=${limit}&page=${numberPages}>; rel="last"`;
-
-      res.setHeader('link', `${firstPage}, ${prevPage}, ${nextPage}, ${lastPage}`);
       model.users().find().skip(skip).limit(limit)
         .toArray((error, users) => {
-          console.log(users);
           if (error) {
             next(404);
             throw error;
           } else {
+            const firstPage = `</users?limit=${limit}&page=${1}>; rel="first"`;
+            const prevPage = `</users?limit=${limit}&page=${page - 1}>; rel="prev"`;
+            const nextPage = `</users?limit=${limit}&page=${page + 1}>; rel="next"`;
+            const lastPage = `</users?limit=${limit}&page=${numberPages}>; rel="last"`;
+
+            res.setHeader('link', `${firstPage}, ${prevPage}, ${nextPage}, ${lastPage}`);
             res.send(users);
           }
         });
@@ -74,24 +72,53 @@ module.exports = {
       query = { email: reqParam };
     }
 
-    if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam || isAuthenticated(req).email === reqParam)) {
+    if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
+    || isAuthenticated(req).email === reqParam)) {
       next(403);
     } else {
       model.users().findOne(query).then((user) => {
         if (!user) {
           next(404);
-        } else {
-          return res.status(200).send({
-            _id: user.id,
-            email: user.email,
-            roles: user.roles,
-          });
         }
+
+        return res.status(200).send({
+          _id: user.id,
+          email: user.email,
+          roles: user.roles,
+
+        });
       });
     }
   },
   putUserById: (req, res, next) => {
-    // console.log('Put', req.body);
+    // usuario actual a cambiar
+    const reqParam = req.params.uid;
+    console.log('reqparam uid', reqParam);
+    // datos a cambiar
+    const { email, password, roles } = req.body;
+    console.log(email, password, roles);
+    let query;
+    // busco por id
+    if (reqParam.indexOf('@') === -1) {
+      query = { _id: new ObjectID(reqParam) };
+      // busco por email
+    } else {
+      query = { email: reqParam };
+    }
+    // Verifico que el usuario sea el mismo que quiere cambiar o sea admin
+    if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
+    || isAuthenticated(req).email === reqParam)) {
+      next(403);
+    } else {
+      // Aqui se modifica
+      model.users().updateOne(query, {
+        body: { email, password, roles: { admin: roles.admin } },
+      }, (err, user) => {
+        console.log('usuario modificado', user);
+      });
+
+      next();
+    }
   },
   deleteUserById: (req, res, next) => {
 

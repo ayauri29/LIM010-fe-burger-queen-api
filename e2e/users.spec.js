@@ -55,7 +55,6 @@ describe('GET /users', () => {
         const lastUrlObj = url.parse(linkHeader.last);
         const nextQuery = qs.parse(nextUrlObj.query);
         const lastQuery = qs.parse(lastUrlObj.query);
-        console.log(nextUrlObj, lastUrlObj, nextQuery, lastQuery);
         expect(nextQuery.limit).toBe('1');
         expect(nextQuery.page).toBe('2');
         expect(lastQuery.limit).toBe('1');
