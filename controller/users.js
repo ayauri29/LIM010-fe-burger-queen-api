@@ -1,14 +1,25 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
 const bcrypt = require('bcrypt');
 const { ObjectID } = require('mongodb');
 const model = require('../models/user');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
+const getUserOrId = (reqParam) => {
+  let query;
+  if (reqParam.indexOf('@') === -1) {
+    query = { _id: new ObjectID(reqParam) };
+  } else {
+    query = { email: reqParam };
+  }
+  return query;
+};
+
 module.exports = {
   getUsers: (req, res, next) => {
     const limit = parseInt(req.query.limit, 10) || 10;
     const page = parseInt(req.query.page, 10) || 1;
-
 
     model.users().countDocuments((err, count) => {
       const numberPages = Math.ceil(count / limit);
@@ -18,7 +29,6 @@ module.exports = {
         .toArray((error, users) => {
           if (error) {
             next(404);
-            throw error;
           } else {
             const firstPage = `</users?limit=${limit}&page=${1}>; rel="first"`;
             const prevPage = `</users?limit=${limit}&page=${page - 1}>; rel="prev"`;
@@ -37,72 +47,47 @@ module.exports = {
     // res.headers()
   },
   createUsers: (req, res, next) => {
-    const { email, password } = req.body;
+    const { email, password, roles } = req.body;
 
     if (!email || !password) {
-      next(400);
-    } else if (email.indexOf('@') === -1) {
-      next(400);
-    } else if (password.length < 5) {
-      next(400);
+      return next(400);
+    } if (email.indexOf('@') === -1) {
+      return next(400);
+    } if (password.length <= 3) {
+      return next(400);
     }
-
+    let newRol;
+    if (!roles) {
+      newRol = false;
+    } else {
+      newRol = roles.admin;
+    }
     const user = {
       email,
       password: bcrypt.hashSync(password, 10),
-      roles: { admin: false },
+      roles: { admin: newRol },
     };
     model.users().findOne({ email }).then((doc) => {
       if (doc) {
-        next(403);
+        return next(403);
       }
-      model.users().insertOne(user);
-      return res.status(200).send({ success: true });
+      model.users().insertOne(user, (error, result) => {
+        if (error) {
+          console.log(error);
+        } else {
+          res.send({
+            _id: result.ops[0]._id,
+            email: result.ops[0].email,
+            roles: result.ops[0].roles,
+          });
+        }
+      });
     });
   },
   getUsersById: (req, res, next) => {
     const reqParam = req.params.uid;
-    let query;
-    if (reqParam.indexOf('@') === -1) {
-      query = { _id: new ObjectID(reqParam) };
-    } else {
-      query = { email: reqParam };
-    }
+    const query = getUserOrId(reqParam);
 
-    if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
-      || isAuthenticated(req).email === reqParam)) {
-      next(403);
-    } else {
-      model.users().findOne(query).then((user) => {
-        if (!user) {
-          next(404);
-        }
-
-        return res.status(200).send({
-          _id: user.id,
-          email: user.email,
-          roles: user.roles,
-
-        });
-      });
-    }
-  },
-  putUserById: (req, res, next) => {
-    // usuario actual a cambiar
-    const reqParam = req.params.uid;
-    console.log('reqparam uid', reqParam);
-    // datos a cambiar
-    const { email, password, roles } = req.body;
-    console.log(email, password, roles);
-    let query;
-    // busco por id
-    if (reqParam.indexOf('@') === -1) {
-      query = { _id: new ObjectID(reqParam) };
-      // busco por email
-    } else {
-      query = { email: reqParam };
-    }
-    // Verifico que el usuario sea el mismo que quiere cambiar o sea admin
     if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
       || isAuthenticated(req).email === reqParam)) {
       next(403);
@@ -111,18 +96,49 @@ module.exports = {
         if (!user) {
           next(404);
         } else {
-          const newUser = {
-            _id: user.id,
-            email: email || user.email,
-            password: bcrypt.hashSync(password, 10) || user.password,
+          return res.status(200).send({
+            email: user.email,
             roles: user.roles,
-          };
-          model.users().updateOne(query, { $set: newUser }, (err, result) => {
+            _id: user._id,
+          });
+        }
+      });
+    }
+  },
+  putUserById: (req, res, next) => {
+    // usuario actual a cambiar
+    const reqParam = req.params.uid;
+    // datos a cambiar
+    const { email, password, roles } = req.body;
+    const query = getUserOrId(reqParam);
+
+    // Verifico que el usuario sea el mismo que quiere cambiar o sea admin
+    if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
+      || isAuthenticated(req).email === reqParam)) {
+      next(403);
+    } else {
+      model.users().findOne(query).then((user) => {
+        if (!user) {
+          next(404);
+        } else if (!isAdmin(req) && roles) {
+          next(403);
+        } else if (!email && !password) {
+          next(400);
+        } else {
+          model.users().update({ _id: user._id }, {
+            $set: {
+              email: email || user.email,
+              password: bcrypt.hashSync(password, 10) || user.password,
+              roles: roles || user.roles,
+            },
+          }, (err, resp) => {
             if (err) {
-              console.log('No se cambiaron los datos');
-            } else {
-              console.log('datos cambiados', result);
+              console.log('no se modifico');
             }
+            return res.status(200).send({
+              _id: user._id,
+              email: user.email,
+            });
           });
         }
       });
@@ -130,12 +146,7 @@ module.exports = {
   },
   deleteUserById: (req, res, next) => {
     const reqParam = req.params.uid;
-    let query;
-    if (reqParam.indexOf('@') === -1) {
-      query = { _id: new ObjectID(reqParam) };
-    } else {
-      query = { email: reqParam };
-    }
+    const query = getUserOrId(reqParam);
 
     if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
       || isAuthenticated(req).email === reqParam)) {
@@ -144,11 +155,15 @@ module.exports = {
       model.users().findOne(query).then((user) => {
         if (!user) {
           next(404);
+        } else {
+          model.users().deleteOne({ _id: user._id }, (err, obj) => {
+            if (err) {
+              console.log('error', err);
+            } else {
+              res.status(200).send({ status: 'eliminado' });
+            }
+          });
         }
-        model.users().deleteOne(query, (err, obj) => {
-          console.log('Eliminado', obj);
-        });
-        // debemos retornar user :()
       });
     }
   },
