@@ -1,10 +1,11 @@
+const connectDb = require('./globalSetup');
 const {
-  getUsers, createUsers,
+  getUsers,
 } = require('../../controller/users');
 
 describe('getUsers', () => {
   beforeEach(() => {
-    // meter datos de prueba en mongo
+    connectDb().then(console.log);
   });
   it('should get users collection', (done) => {
     const users = [];
@@ -21,11 +22,5 @@ describe('getUsers', () => {
     };
 
     getUsers({ query: {} }, res);
-  });
-});
-
-describe('createUsers', () => {
-  it('should create users', (done) => {
-    done();
   });
 });
