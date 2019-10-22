@@ -8,16 +8,13 @@ const errorHandler = require('./middleware/error');
 const routes = require('./routes');
 const pkg = require('./package.json');
 
+const database = require('./db-data/dataBase');
 
 const { port, dbUrl, secret } = config;
 const app = express();
 
-let database;
-
-mongoClient.connect(dbUrl, { useNewUrlParser: true }, (error, db) => {
-  if (error) { console.log('Error while connecting to database: ', error); } else { console.log('Connection established successfully'); }
-  database = db.db();
-
+database(dbUrl).then(() => {
+  console.log('Connection established successfully');
   // perform operations here
   app.set('config', config);
   app.set('pkg', pkg);
@@ -44,5 +41,3 @@ mongoClient.connect(dbUrl, { useNewUrlParser: true }, (error, db) => {
     });
   });
 });
-
-module.exports.getDatabase = () => database;

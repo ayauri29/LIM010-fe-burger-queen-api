@@ -16,19 +16,16 @@ const getUserOrId = (reqParam) => {
 };
 
 module.exports = {
-  getUsers: (req, res, next) => {
+  getUsers: (req, res) => {
     const limit = parseInt(req.query.limit, 10) || 10;
     const page = parseInt(req.query.page, 10) || 1;
-
     model.users().countDocuments((err, count) => {
       const numberPages = Math.ceil(count / limit);
-      const skip = (numberPages - 1) * limit;
+      const skip = (numberPages === 0) ? 1 : (numberPages - 1) * limit;
 
       model.users().find().skip(skip).limit(limit)
         .toArray((error, users) => {
-          if (error) {
-            next(404);
-          } else {
+          if (!error) {
             const firstPage = `</users?limit=${limit}&page=${1}>; rel="first"`;
             const prevPage = `</users?limit=${limit}&page=${page - 1}>; rel="prev"`;
             const nextPage = `</users?limit=${limit}&page=${page + 1}>; rel="next"`;
@@ -68,12 +65,10 @@ module.exports = {
     };
     model.users().findOne({ email }).then((doc) => {
       if (doc) {
-        return next(403);
+        next(403);
       }
       model.users().insertOne(user, (error, result) => {
-        if (error) {
-          console.log(error);
-        } else {
+        if (!error) {
           res.send({
             _id: result.ops[0]._id,
             email: result.ops[0].email,
@@ -95,7 +90,7 @@ module.exports = {
         if (!user) {
           next(404);
         } else {
-          return res.status(200).send({
+          return res.send({
             email: user.email,
             roles: user.roles,
             _id: user._id,
@@ -124,19 +119,20 @@ module.exports = {
         } else if (!email && !password) {
           next(400);
         } else {
-          model.users().update({ _id: user._id }, {
+          model.users().findAndModify({ _id: user._id }, [], {
             $set: {
               email: email || user.email,
-              password: bcrypt.hashSync(password, 10) || user.password,
+              password: (!password) ? user.password : bcrypt.hashSync(password, 10),
               roles: roles || user.roles,
             },
-          }, (err, resp) => {
+          }, { new: true }, (err, result) => {
             if (err) {
               console.log('no se modifico');
             }
-            return res.status(200).send({
-              _id: user._id,
-              email: user.email,
+            return res.send({
+              _id: result.value._id,
+              email: result.value.email,
+              roles: result.value.roles,
             });
           });
         }
