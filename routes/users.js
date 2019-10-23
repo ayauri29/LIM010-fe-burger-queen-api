@@ -1,44 +1,38 @@
-/* eslint-disable consistent-return */
-/* eslint-disable no-shadow */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-console */
 const bcrypt = require('bcrypt');
 const model = require('../models/user');
 
-const {
-  requireAuth,
-  requireAdmin,
-} = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const {
-  getUsers, createUsers, getUsersById, putUserById, deleteUserById,
+	getUsers,
+	createUsers,
+	getUsersById,
+	putUserById,
+	deleteUserById
 } = require('../controller/users');
 
-
 const initAdminUser = (app, next) => {
-  // console.log('Primero creo el user');
-  const { adminEmail, adminPassword } = app.get('config');
-  if (!adminEmail || !adminPassword) {
-    return next();
-  }
+	const { adminEmail, adminPassword } = app.get('config');
+	if (!adminEmail || !adminPassword) {
+		return next();
+	}
 
-  const adminUser = {
-    email: adminEmail,
-    password: bcrypt.hashSync(adminPassword, 10),
-    roles: { admin: true },
-  };
+	const adminUser = {
+		email: adminEmail,
+		password: bcrypt.hashSync(adminPassword, 10),
+		roles: { admin: true }
+	};
 
-  model.users().createIndex({ email: 1 }, { unique: true }, (err, result) => {
-    if (err) {
-      next(403);
-    } else if (result) {
-      // console.log('el usuario se creo ');
-      model.users().insertOne(adminUser);
-      next();
-    }
-  });
+	model.users().createIndex({ email: 1 }, { unique: true }, (err, result) => {
+		if (err) {
+			next(403);
+		} else if (result) {
+			// console.log('el usuario se creo ');
+			model.users().insertOne(adminUser);
+			next();
+		}
+	});
 };
-
 
 /*
  * Diagrama de flujo de una aplicación y petición en node - express :
@@ -69,116 +63,116 @@ const initAdminUser = (app, next) => {
 
 /** @module users */
 module.exports = (app, next) => {
-  /**
-   * @name GET /users
-   * @description Lista usuarias
-   * @path {GET} /users
-   * @query {String} [page=1] Página del listado a consultar
-   * @query {String} [limit=10] Cantitad de elementos por página
-   * @header {Object} link Parámetros de paginación
-   * @header {String} link.first Link a la primera página
-   * @header {String} link.prev Link a la página anterior
-   * @header {String} link.next Link a la página siguiente
-   * @header {String} link.last Link a la última página
-   * @auth Requiere `token` de autenticación y que la usuaria sea **admin**
-   * @response {Array} users
-   * @response {String} users[]._id
-   * @response {Object} users[].email
-   * @response {Object} users[].roles
-   * @response {Boolean} users[].roles.admin
-   * @code {200} si la autenticación es correcta
-   * @code {401} si no hay cabecera de autenticación
-   * @code {403} si no es ni admin
-   */
-  app.get('/users', requireAdmin, getUsers);
+	/**
+	 * @name GET /users
+	 * @description Lista usuarias
+	 * @path {GET} /users
+	 * @query {String} [page=1] Página del listado a consultar
+	 * @query {String} [limit=10] Cantitad de elementos por página
+	 * @header {Object} link Parámetros de paginación
+	 * @header {String} link.first Link a la primera página
+	 * @header {String} link.prev Link a la página anterior
+	 * @header {String} link.next Link a la página siguiente
+	 * @header {String} link.last Link a la última página
+	 * @auth Requiere `token` de autenticación y que la usuaria sea **admin**
+	 * @response {Array} users
+	 * @response {String} users[]._id
+	 * @response {Object} users[].email
+	 * @response {Object} users[].roles
+	 * @response {Boolean} users[].roles.admin
+	 * @code {200} si la autenticación es correcta
+	 * @code {401} si no hay cabecera de autenticación
+	 * @code {403} si no es ni admin
+	 */
+	app.get('/users', requireAdmin, getUsers);
 
-  /**
-   * @name GET /users/:uid
-   * @description Obtiene información de una usuaria
-   * @path {GET} /users/:uid
-   * @params {String} :uid `id` o `email` de la usuaria a consultar
-   * @auth Requiere `token` de autenticación y que la usuaria sea **admin** o la usuaria a consultar
-   * @response {Object} user
-   * @response {String} user._id
-   * @response {Object} user.email
-   * @response {Object} user.roles
-   * @response {Boolean} user.roles.admin
-   * @code {200} si la autenticación es correcta
-   * @code {401} si no hay cabecera de autenticación
-   * @code {403} si no es ni admin o la misma usuaria
-   * @code {404} si la usuaria solicitada no existe
-   */
+	/**
+	 * @name GET /users/:uid
+	 * @description Obtiene información de una usuaria
+	 * @path {GET} /users/:uid
+	 * @params {String} :uid `id` o `email` de la usuaria a consultar
+	 * @auth Requiere `token` de autenticación y que la usuaria sea **admin** o la usuaria a consultar
+	 * @response {Object} user
+	 * @response {String} user._id
+	 * @response {Object} user.email
+	 * @response {Object} user.roles
+	 * @response {Boolean} user.roles.admin
+	 * @code {200} si la autenticación es correcta
+	 * @code {401} si no hay cabecera de autenticación
+	 * @code {403} si no es ni admin o la misma usuaria
+	 * @code {404} si la usuaria solicitada no existe
+	 */
 
-  app.get('/users/:uid', requireAuth, getUsersById);
+	app.get('/users/:uid', requireAuth, getUsersById);
 
-  /**
-   * @name POST /users
-   * @description Crea una usuaria
-   * @path {POST} /users
-   * @body {String} email Correo
-   * @body {String} password Contraseña
-   * @body {Object} [roles]
-   * @body {Boolean} [roles.admin]
-   * @auth Requiere `token` de autenticación y que la usuaria sea **admin**
-   * @response {Array} users
-   * @response {String} users[]._id
-   * @response {Object} users[].email
-   * @response {Object} users[].roles
-   * @response {Boolean} users[].roles.admin
-   * @code {200} si la autenticación es correcta
-   * @code {400} si no se proveen `email` o `password` o ninguno de los dos
-   * @code {401} si no hay cabecera de autenticación
-   * @code {403} si ya existe usuaria con ese `email`
-   */
-  app.post('/users', requireAdmin, createUsers);
+	/**
+	 * @name POST /users
+	 * @description Crea una usuaria
+	 * @path {POST} /users
+	 * @body {String} email Correo
+	 * @body {String} password Contraseña
+	 * @body {Object} [roles]
+	 * @body {Boolean} [roles.admin]
+	 * @auth Requiere `token` de autenticación y que la usuaria sea **admin**
+	 * @response {Array} users
+	 * @response {String} users[]._id
+	 * @response {Object} users[].email
+	 * @response {Object} users[].roles
+	 * @response {Boolean} users[].roles.admin
+	 * @code {200} si la autenticación es correcta
+	 * @code {400} si no se proveen `email` o `password` o ninguno de los dos
+	 * @code {401} si no hay cabecera de autenticación
+	 * @code {403} si ya existe usuaria con ese `email`
+	 */
+	app.post('/users', requireAdmin, createUsers);
 
-  /**
-   * @name PUT /users
-   * @description Modifica una usuaria
-   * @params {String} :uid `id` o `email` de la usuaria a modificar
-   * @path {PUT} /users
-   * @body {String} email Correo
-   * @body {String} password Contraseña
-   * @body {Object} [roles]
-   * @body {Boolean} [roles.admin]
-   * @auth Requiere `token` de autenticación y que la usuaria sea **admin** o la usuaria a modificar
-   * @response {Object} user
-   * @response {String} user._id
-   * @response {Object} user.email
-   * @response {Object} user.roles
-   * @response {Boolean} user.roles.admin
-   * @code {200} si la autenticación es correcta
-   * @code {400} si no se proveen `email` o `password` o ninguno de los dos
-   * @code {401} si no hay cabecera de autenticación
-   * @code {403} si no es ni admin o la misma usuaria
-   * @code {403} una usuaria no admin intenta de modificar sus `roles`
-   * @code {404} si la usuaria solicitada no existe
-   */
+	/**
+	 * @name PUT /users
+	 * @description Modifica una usuaria
+	 * @params {String} :uid `id` o `email` de la usuaria a modificar
+	 * @path {PUT} /users
+	 * @body {String} email Correo
+	 * @body {String} password Contraseña
+	 * @body {Object} [roles]
+	 * @body {Boolean} [roles.admin]
+	 * @auth Requiere `token` de autenticación y que la usuaria sea **admin** o la usuaria a modificar
+	 * @response {Object} user
+	 * @response {String} user._id
+	 * @response {Object} user.email
+	 * @response {Object} user.roles
+	 * @response {Boolean} user.roles.admin
+	 * @code {200} si la autenticación es correcta
+	 * @code {400} si no se proveen `email` o `password` o ninguno de los dos
+	 * @code {401} si no hay cabecera de autenticación
+	 * @code {403} si no es ni admin o la misma usuaria
+	 * @code {403} una usuaria no admin intenta de modificar sus `roles`
+	 * @code {404} si la usuaria solicitada no existe
+	 */
 
-  // estrategia de busqueda y actualizacion
-  // buscar el registro a actualizar
-  // encuentra y modifica
-  // update(lo que quiere encoontrar, la actualizacion)
-  // si falla devuelve 404
-  app.put('/users/:uid', requireAuth, putUserById);
+	// estrategia de busqueda y actualizacion
+	// buscar el registro a actualizar
+	// encuentra y modifica
+	// update(lo que quiere encoontrar, la actualizacion)
+	// si falla devuelve 404
+	app.put('/users/:uid', requireAuth, putUserById);
 
-  /**
-   * @name DELETE /users
-   * @description Elimina una usuaria
-   * @params {String} :uid `id` o `email` de la usuaria a modificar
-   * @path {DELETE} /users
-   * @auth Requiere `token` de autenticación y que la usuaria sea **admin** o la usuaria a eliminar
-   * @response {Object} user
-   * @response {String} user._id
-   * @response {Object} user.email
-   * @response {Object} user.roles
-   * @response {Boolean} user.roles.admin
-   * @code {200} si la autenticación es correcta
-   * @code {401} si no hay cabecera de autenticación
-   * @code {403} si no es ni admin o la misma usuaria
-   * @code {404} si la usuaria solicitada no existe
-   */
-  app.delete('/users/:uid', requireAuth, deleteUserById);
+	/**
+	 * @name DELETE /users
+	 * @description Elimina una usuaria
+	 * @params {String} :uid `id` o `email` de la usuaria a modificar
+	 * @path {DELETE} /users
+	 * @auth Requiere `token` de autenticación y que la usuaria sea **admin** o la usuaria a eliminar
+	 * @response {Object} user
+	 * @response {String} user._id
+	 * @response {Object} user.email
+	 * @response {Object} user.roles
+	 * @response {Boolean} user.roles.admin
+	 * @code {200} si la autenticación es correcta
+	 * @code {401} si no hay cabecera de autenticación
+	 * @code {403} si no es ni admin o la misma usuaria
+	 * @code {404} si la usuaria solicitada no existe
+	 */
+	app.delete('/users/:uid', requireAuth, deleteUserById);
 
-  initAdminUser(app, next);
+	initAdminUser(app, next);
 };

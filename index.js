@@ -1,6 +1,4 @@
-/* eslint-disable no-console */
 const express = require('express');
-const mongoClient = require('mongodb').MongoClient;
 const bodyParser = require('body-parser');
 const config = require('./config');
 const authMiddleware = require('./middleware/auth');
