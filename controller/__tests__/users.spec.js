@@ -1,6 +1,6 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const {
-  getUsers, createUsers, getUsersById, putUserById,
+  getUsers, createUsers, getUsersById, putUserById, deleteUserById,
 } = require('../../controller/users');
 const initDb = require('../../db-data/dataBase');
 
@@ -121,7 +121,7 @@ describe('getUsers', () => {
   });
   it('should deleteUsersById', (done) => {
     const user = {
-      email: 'tester@test',
+      email: 'tester@tester',
       role: {
         admin: true,
       },
@@ -132,19 +132,16 @@ describe('getUsers', () => {
         isVerify: user,
       },
       params: {
-        uid: 'tester@test',
-      },
-      body: {
-        email: 'tester@tester',
+        uid: 'tester@tester',
       },
     };
     const resp = {
       send(result) {
-        expect(result.email).toBe(req.body.email);
+        expect(result.email).toStrictEqual(user.email);
         done();
       },
     };
     const next = (code) => code;
-    putUserById(req, resp, next);
+    deleteUserById(req, resp, next);
   });
 });

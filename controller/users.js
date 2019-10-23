@@ -155,7 +155,7 @@ module.exports = {
             if (err) {
               console.log('error', err);
             } else {
-              res.status(200).send({ status: 'eliminado' });
+              res.send(user);
             }
           });
         }
