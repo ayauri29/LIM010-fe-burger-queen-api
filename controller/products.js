@@ -1,19 +1,11 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
-const bcrypt = require('bcrypt');
 const { ObjectID } = require('mongodb');
-const model = require('../models/user');
+const model = require('../models/products');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
-const getUserOrId = (reqParam) => {
-  let query;
-  if (reqParam.indexOf('@') === -1) {
-    query = { _id: new ObjectID(reqParam) };
-  } else {
-    query = { email: reqParam };
-  }
-  return query;
-};
 
 module.exports = {
   /*  getUsers: (req, res) => {
@@ -58,7 +50,7 @@ module.exports = {
       type,
       dateEntry: new Date(),
     };
-    model.users().insertOne(product, (error, result) => {
+    model.products().insertOne(product, (error, result) => {
       console.log(result.ops);
       if (!error) {
         res.send({
