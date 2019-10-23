@@ -1,6 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable no-underscore-dangle */
 const path = require('path');
 const { spawn } = require('child_process');
 const nodeFetch = require('node-fetch');

@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-console */
 const bcrypt = require('bcrypt');
 const { ObjectID } = require('mongodb');
 const model = require('../models/user');
@@ -151,7 +149,7 @@ module.exports = {
         if (!user) {
           next(404);
         } else {
-          model.users().deleteOne({ _id: user._id }, (err, obj) => {
+          model.users().deleteOne({ _id: user._id }, (err) => {
             if (err) {
               console.log('error', err);
             } else {

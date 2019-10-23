@@ -1,10 +1,5 @@
-/* eslint-disable consistent-return */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-console */
 const { ObjectID } = require('mongodb');
 const model = require('../models/products');
-const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
 module.exports = {
   getProducts: (req, res) => {
@@ -127,16 +122,12 @@ module.exports = {
     const reqParam = req.params.productId;
     const query = (hex.test(reqParam)) ? { _id: new ObjectID(reqParam) } : { _id: reqParam };
 
-    const {
-      name, price, image, type,
-    } = req.body;
-
     try {
       model.products().findOne(query).then((product) => {
         if (!product) {
           next(404);
         } else {
-          model.products().deleteOne({ _id: product._id }, (err, result) => {
+          model.products().deleteOne({ _id: product._id }, (err) => {
             if (err) {
               console.log('no se modifico');
             }

@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable import/no-extraneous-dependencies */
 const kill = require('tree-kill');
 
 // eslint-disable-next-line consistent-return
