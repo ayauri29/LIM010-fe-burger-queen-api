@@ -4,7 +4,9 @@ const {
   requireAdmin,
 } = require('../middleware/auth');
 
-const { createProducts, getProducts, getProductsById } = require('../controller/products');
+const {
+  createProducts, getProducts, getProductsById, putProductById,
+} = require('../controller/products');
 
 /** @module products */
 module.exports = (app, nextMain) => {
@@ -98,13 +100,11 @@ module.exports = (app, nextMain) => {
    * @response {Date} product.dateEntry Fecha de creación
    * @code {200} si la autenticación es correcta
    * @code {400} si no se indican ninguna propiedad a modificar
-   * @code {401} si no hay cabecera de autenticación
-   * @code {403} si no es admin
+   * @code {401} si no hay cabecera de autenticación *
+   * @code {403} si no es admin *
    * @code {404} si el producto con `productId` indicado no existe
    */
-  app.put('/products/:productId', requireAdmin, (req, resp, next) => {
-  });
-
+  app.put('/products/:productId', requireAdmin, putProductById);
   /**
    * @name DELETE /products
    * @description Elimina un producto

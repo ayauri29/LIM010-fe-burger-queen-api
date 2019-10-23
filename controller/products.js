@@ -50,7 +50,6 @@ module.exports = {
       dateEntry: new Date(),
     };
     model.products().insertOne(product, (error, result) => {
-      console.log(result.ops);
       if (!error) {
         res.send({
           _id: result.ops[0]._id,
@@ -82,40 +81,48 @@ module.exports = {
       }
     });
   },
-  /* putProductById: (req, res, next) => {
-    const hex = /[0-9A-Fa-f]{6}/g;
+  putProductById: (req, res, next) => {
+    const hex = /^[0-9a-fA-F]{24}$/;
     const reqParam = req.params.productId;
     const query = (hex.test(reqParam)) ? { _id: new ObjectID(reqParam) } : { _id: reqParam };
 
     const {
-      name, price, imagen, type,
+      name, price, image, type,
     } = req.body;
 
-    // Verifico que el usuario sea el mismo que quiere cambiar o sea admin
-
-    model.products().findOne(query).then((product) => {
-      if (!product) {
-        next(404);
-      } else {
-        model.products().findAndModify({ _id: user._id }, [], {
-          $set: {
-            email: email || user.email,
-            password: (!password) ? user.password : bcrypt.hashSync(password, 10),
-            roles: roles || user.roles,
-          },
-        }, { new: true }, (err, result) => {
-          if (err) {
-            console.log('no se modifico');
-          }
-          return res.send({
-            _id: result.value._id,
-            email: result.value.email,
-            roles: result.value.roles,
+    try {
+      model.products().findOne(query).then((product) => {
+        if (!product) {
+          next(404);
+        } else if (typeof (name) !== 'string' && typeof (price) !== 'number' && typeof (image) !== 'string' && typeof (type) !== 'string') {
+          next(400);
+        } else {
+          model.products().findAndModify({ _id: product._id }, [], {
+            $set: {
+              name: name || product.name,
+              price: price || product.price,
+              image: image || product.image,
+              type: type || product.type,
+            },
+          }, { new: true }, (err, result) => {
+            console.log('soy result', result);
+            if (err) {
+              console.log('no se modifico');
+            }
+            return res.send({
+              _id: result.value._id,
+              name: result.value.name,
+              price: result.value.price,
+              image: result.value.image,
+              type: result.value.type,
+            });
           });
-        });
-      }
-    });
-  }, */
+        }
+      });
+    } catch (error) {
+      next(404);
+    }
+  },
   /* deleteUserById: (req, res, next) => {
     const reqParam = req.params.uid;
     const query = getUserOrId(reqParam);
