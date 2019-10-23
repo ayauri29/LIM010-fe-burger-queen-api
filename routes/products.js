@@ -5,7 +5,7 @@ const {
 } = require('../middleware/auth');
 
 const {
-  createProducts, getProducts, getProductsById, putProductById,
+  createProducts, getProducts, getProductsById, putProductById, deleteProductById,
 } = require('../controller/products');
 
 /** @module products */
@@ -79,8 +79,6 @@ module.exports = (app, nextMain) => {
    * @code {404} si el producto con `productId` indicado no existe
    */
   app.post('/products', requireAdmin, createProducts);
-
-
   /**
    * @name PUT /products
    * @description Modifica un producto
@@ -123,8 +121,7 @@ module.exports = (app, nextMain) => {
    * @code {403} si no es ni admin
    * @code {404} si el producto con `productId` indicado no existe
    */
-  app.delete('/products/:productId', requireAdmin, (req, resp, next) => {
-  });
+  app.delete('/products/:productId', requireAdmin, deleteProductById);
 
   nextMain();
 };

@@ -105,7 +105,6 @@ module.exports = {
               type: type || product.type,
             },
           }, { new: true }, (err, result) => {
-            console.log('soy result', result);
             if (err) {
               console.log('no se modifico');
             }
@@ -123,27 +122,30 @@ module.exports = {
       next(404);
     }
   },
-  /* deleteUserById: (req, res, next) => {
-    const reqParam = req.params.uid;
-    const query = getUserOrId(reqParam);
+  deleteProductById: (req, res, next) => {
+    const hex = /^[0-9a-fA-F]{24}$/;
+    const reqParam = req.params.productId;
+    const query = (hex.test(reqParam)) ? { _id: new ObjectID(reqParam) } : { _id: reqParam };
 
-    if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
-      || isAuthenticated(req).email === reqParam)) {
-      next(403);
-    } else {
-      model.products().findOne(query).then((user) => {
-        if (!user) {
+    const {
+      name, price, image, type,
+    } = req.body;
+
+    try {
+      model.products().findOne(query).then((product) => {
+        if (!product) {
           next(404);
         } else {
-          model.products().deleteOne({ _id: user._id }, (err, obj) => {
+          model.products().deleteOne({ _id: product._id }, (err, result) => {
             if (err) {
-              console.log('error', err);
-            } else {
-              res.send(user);
+              console.log('no se modifico');
             }
+            return res.send({ product });
           });
         }
       });
+    } catch (error) {
+      next(404);
     }
-  }, */
+  },
 };
