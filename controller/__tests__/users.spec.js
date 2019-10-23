@@ -2,7 +2,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const {
   getUsers, createUsers, getUsersById, putUserById, deleteUserById,
 } = require('../../controller/users');
-const initDb = require('../../db-data/dataBase');
+const initDb = require('../../connection/dataBase');
 
 beforeAll((done) => {
   const mongod = new MongoMemoryServer();

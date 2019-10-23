@@ -8,7 +8,7 @@ const errorHandler = require('./middleware/error');
 const routes = require('./routes');
 const pkg = require('./package.json');
 
-const database = require('./db-data/dataBase');
+const database = require('./connection/dataBase');
 
 const { port, dbUrl, secret } = config;
 const app = express();

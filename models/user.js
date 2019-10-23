@@ -1,3 +1,3 @@
-const main = require('../db-data/dataBase');
+const main = require('../connection/dataBase');
 
 module.exports.users = () => main.getDatabase().collection('users');
