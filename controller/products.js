@@ -6,25 +6,24 @@ const { ObjectID } = require('mongodb');
 const model = require('../models/products');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
-
 module.exports = {
-  /*  getUsers: (req, res) => {
+  getProducts: (req, res) => {
     const limit = parseInt(req.query.limit, 10) || 10;
     const page = parseInt(req.query.page, 10) || 1;
-    model.users().countDocuments((err, count) => {
+    model.products().countDocuments((err, count) => {
       const numberPages = Math.ceil(count / limit);
       const skip = (numberPages === 0) ? 1 : (numberPages - 1) * limit;
 
-      model.users().find().skip(skip).limit(limit)
-        .toArray((error, users) => {
+      model.products().find().skip(skip).limit(limit)
+        .toArray((error, product) => {
           if (!error) {
-            const firstPage = `</users?limit=${limit}&page=${1}>; rel="first"`;
-            const prevPage = `</users?limit=${limit}&page=${page - 1}>; rel="prev"`;
-            const nextPage = `</users?limit=${limit}&page=${page + 1}>; rel="next"`;
-            const lastPage = `</users?limit=${limit}&page=${numberPages}>; rel="last"`;
+            const firstPage = `</products?limit=${limit}&page=${1}>; rel="first"`;
+            const prevPage = `</products?limit=${limit}&page=${page - 1}>; rel="prev"`;
+            const nextPage = `</products?limit=${limit}&page=${page + 1}>; rel="next"`;
+            const lastPage = `</products?limit=${limit}&page=${numberPages}>; rel="last"`;
 
             res.setHeader('link', `${firstPage}, ${prevPage}, ${nextPage}, ${lastPage}`);
-            res.send(users);
+            res.send(product);
           }
         });
     });
@@ -33,7 +32,7 @@ module.exports = {
     // count / limit = paginas
     // link => url query con prev, next
     // res.headers()
-  }, */
+  },
   createProducts: (req, res, next) => {
     const {
       name, price, image, type,
@@ -64,68 +63,60 @@ module.exports = {
       }
     });
   },
-  /*   getUsersById: (req, res, next) => {
-    const reqParam = req.params.uid;
-    const query = getUserOrId(reqParam);
-
-    if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
-      || isAuthenticated(req).email === reqParam)) {
-      next(403);
-    } else {
-      model.users().findOne(query).then((user) => {
-        if (!user) {
-          next(404);
-        } else {
-          return res.send({
-            email: user.email,
-            roles: user.roles,
-            _id: user._id,
-          });
-        }
-      });
-    }
+  getProductsById: (req, res, next) => {
+    const hex = /[0-9A-Fa-f]{6}/g;
+    const reqParam = req.params.productId;
+    const query = (hex.test(reqParam)) ? { _id: new ObjectID(reqParam) } : { _id: reqParam };
+    model.products().findOne(query).then((product) => {
+      if (!product) {
+        next(404);
+      } else {
+        return res.send({
+          _id: product._id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          type: product.type,
+          dateEntry: product.dateEntry,
+        });
+      }
+    });
   },
-  putUserById: (req, res, next) => {
-    // usuario actual a cambiar
-    const reqParam = req.params.uid;
-    // datos a cambiar
-    const { email, password, roles } = req.body;
-    const query = getUserOrId(reqParam);
+  /* putProductById: (req, res, next) => {
+    const hex = /[0-9A-Fa-f]{6}/g;
+    const reqParam = req.params.productId;
+    const query = (hex.test(reqParam)) ? { _id: new ObjectID(reqParam) } : { _id: reqParam };
+
+    const {
+      name, price, imagen, type,
+    } = req.body;
 
     // Verifico que el usuario sea el mismo que quiere cambiar o sea admin
-    if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
-      || isAuthenticated(req).email === reqParam)) {
-      next(403);
-    } else {
-      model.users().findOne(query).then((user) => {
-        if (!user) {
-          next(404);
-        } else if (!isAdmin(req) && roles) {
-          next(403);
-        } else if (!email && !password) {
-          next(400);
-        } else {
-          model.users().findAndModify({ _id: user._id }, [], {
-            $set: {
-              email: email || user.email,
-              password: (!password) ? user.password : bcrypt.hashSync(password, 10),
-              roles: roles || user.roles,
-            },
-          }, { new: true }, (err, result) => {
-            if (err) {
-              console.log('no se modifico');
-            }
-            return res.send({
-              _id: result.value._id,
-              email: result.value.email,
-              roles: result.value.roles,
-            });
+
+    model.products().findOne(query).then((product) => {
+      if (!product) {
+        next(404);
+      } else {
+        model.products().findAndModify({ _id: user._id }, [], {
+          $set: {
+            email: email || user.email,
+            password: (!password) ? user.password : bcrypt.hashSync(password, 10),
+            roles: roles || user.roles,
+          },
+        }, { new: true }, (err, result) => {
+          if (err) {
+            console.log('no se modifico');
+          }
+          return res.send({
+            _id: result.value._id,
+            email: result.value.email,
+            roles: result.value.roles,
           });
-        }
-      });
-    }
-  },
-  deleteUserById: (req, res, next) => {
+        });
+      }
+    });
+  }, */
+  /* deleteUserById: (req, res, next) => {
     const reqParam = req.params.uid;
     const query = getUserOrId(reqParam);
 
@@ -133,11 +124,11 @@ module.exports = {
       || isAuthenticated(req).email === reqParam)) {
       next(403);
     } else {
-      model.users().findOne(query).then((user) => {
+      model.products().findOne(query).then((user) => {
         if (!user) {
           next(404);
         } else {
-          model.users().deleteOne({ _id: user._id }, (err, obj) => {
+          model.products().deleteOne({ _id: user._id }, (err, obj) => {
             if (err) {
               console.log('error', err);
             } else {
