@@ -131,7 +131,7 @@ module.exports = {
             if (err) {
               console.log('no se modifico');
             }
-            return res.send({ product });
+            return res.send(product);
           });
         }
       });
