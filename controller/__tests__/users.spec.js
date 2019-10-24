@@ -43,7 +43,9 @@ describe('getUsers', () => {
 		};
 		getUsers(req, res);
 	});
+});
 
+describe('createUsers', () => {
 	it('should create users', done => {
 		const user = {
 			email: 'tester@test',
@@ -69,7 +71,9 @@ describe('getUsers', () => {
 		const next = code => code;
 		createUsers(req, res, next);
 	});
+});
 
+describe('getUsersById', () => {
 	it('should getUsersById', done => {
 		const user = {
 			email: 'tester@test',
@@ -94,8 +98,10 @@ describe('getUsers', () => {
 		const next = code => code;
 		getUsersById(req, resp, next);
 	});
+});
 
-	it('should putUsersById', done => {
+describe('putUsersById', () => {
+	it('should find an user by id and modify it', done => {
 		const user = {
 			email: 'tester@test',
 			role: {
@@ -122,7 +128,10 @@ describe('getUsers', () => {
 		const next = code => code;
 		putUserById(req, resp, next);
 	});
-	it('should deleteUsersById', done => {
+});
+
+describe('deleteUsersById', () => {
+	it('should delete an user', done => {
 		const user = {
 			email: 'tester@tester',
 			role: {
