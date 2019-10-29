@@ -191,15 +191,6 @@ describe('POST /users', () => {
 			body: { email: 'test@test.test', password: '123456' }
 		}).then(resp => expect(resp.status).toBe(403));
 	});
-	// it.only('crea un user', () => (
-	//   fetchAsAdmin('/users', {
-	//     method: 'POST',
-	//     body: { email: 'test@test.test', password: '123456', state: true },
-	//   })
-	//   .then(resp => {
-	//     console.log(resp.status)
-	//   })
-	// ));
 });
 
 describe('PUT /users/:uid', () => {

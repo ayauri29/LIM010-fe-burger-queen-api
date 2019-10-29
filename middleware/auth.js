@@ -14,18 +14,14 @@ module.exports = secret => (req, resp, next) => {
 		return next();
 	}
 	jwt.verify(token, secret, (err, decodedToken) => {
-		// console.log('soy decodedtoken', decodedToken);
 		if (err) {
 			return next(403);
 		}
-
-		// TODO: Verificar identidad del usuario usando `decodeToken.uid`
 		model
 			.users()
 			.findOne({ _id: new ObjectID(decodedToken.uid) })
 			.then(user => {
 				if (user) {
-					// enviar datos
 					const userVerify = {
 						isVerify: {
 							id: decodedToken.uid,
@@ -35,10 +31,8 @@ module.exports = secret => (req, resp, next) => {
 						}
 					};
 					Object.assign(req.headers, userVerify);
-					// console.log(req.headers.isAuth);
 					next();
 				} else {
-					// no existe el usuario
 					next(404);
 				}
 			});
