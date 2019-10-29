@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 const { requireAuth } = require('../middleware/auth');
-const { createOrder, getOrders, getOrderById } = require('../controller/orders');
+const { createOrder, getOrders, getOrderById, deleteOrderById, putOrderById } = require('../controller/orders');
 /** @module orders */
 module.exports = (app, nextMain) => {
 	/**
@@ -110,7 +110,7 @@ module.exports = (app, nextMain) => {
 	 * @code {401} si no hay cabecera de autenticación
 	 * @code {404} si la orderId con `orderId` indicado no existe
 	 */
-	app.put('/orders/:orderid', requireAuth, (req, resp, next) => {});
+	app.put('/orders/:orderid', requireAuth, putOrderById);
 
 	/**
 	 * @name DELETE /orders
@@ -133,7 +133,7 @@ module.exports = (app, nextMain) => {
 	 * @code {401} si no hay cabecera de autenticación
 	 * @code {404} si el producto con `orderId` indicado no existe
 	 */
-	app.delete('/orders/:orderid', requireAuth, (req, resp, next) => {});
+	app.delete('/orders/:orderid', requireAuth, deleteOrderById);
 
 	nextMain();
 };
