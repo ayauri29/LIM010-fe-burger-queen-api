@@ -106,7 +106,6 @@ module.exports = {
     } else{
 
     model.orders().findOne(query).then(order => {
-        console.log('order', order);
         if (!order) {
           return next(404);
         } else {

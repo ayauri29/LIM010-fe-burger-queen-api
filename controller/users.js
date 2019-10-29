@@ -125,7 +125,7 @@ module.exports = {
             },
           }, { new: true }, (err, result) => {
             if (err) {
-              console.log('no se modifico');
+              console.error(err)
             }
             return res.send({
               _id: result.value._id,
@@ -151,7 +151,7 @@ module.exports = {
         } else {
           model.users().deleteOne({ _id: user._id }, (err) => {
             if (err) {
-              console.log('error', err);
+              console.error(err)
             } else {
               res.send(user);
             }

@@ -27,7 +27,6 @@ const initAdminUser = (app, next) => {
 		if (err) {
 			next(403);
 		} else if (result) {
-			// console.log('el usuario se creo ');
 			model.users().insertOne(adminUser);
 			next();
 		}
