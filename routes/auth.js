@@ -39,7 +39,7 @@ module.exports = (app, nextMain) => {
 							{ expiresIn: '1h' },
 							(err, token) => {
 								if (err) {
-									console.error(err);
+									console.error('auth',err);
 								}
 								return resp.status(200).send({ token });
 							}
@@ -49,7 +49,7 @@ module.exports = (app, nextMain) => {
 					}
 				});
 		} catch (error) {
-			console.log(error);
+			console.log('aaaaaaaaaaaaa',error);
 		}
 	});
 

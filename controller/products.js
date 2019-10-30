@@ -101,7 +101,7 @@ module.exports = {
             },
           }, { new: true }, (err, result) => {
             if (err) {
-              console.error(err)
+              console.error('put product',err)
             }
             return res.send({
               _id: result.value._id,
@@ -129,7 +129,7 @@ module.exports = {
         } else {
           model.products().deleteOne({ _id: product._id }, (err) => {
             if (err) {
-              console.error(err)
+              console.error('delete product',err)
             }
             return res.send(product);
           });
