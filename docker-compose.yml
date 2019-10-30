@@ -14,7 +14,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=8080
-      - DB_URL="mongodb://db:27017/burger-queen"
+      - DB_URL=mongodb://db:27017/burger-queen
     env_file:
       - secrets.env # los _secrets_ a incluir como variables de entorno. Usa el archivo `sample.secrets.env` como guia
     volumes:
@@ -23,7 +23,7 @@ services:
       - "8080" # nuestra app corre en el puerto 8080
     ports:
       - "80:8080" # mapeamos el puerto 8080 de nuestro contenedor al puerto 80 de nuestra maquina
-    command: "bash -c 'rm -rf node_modules && npm install --production && npm start'" # reinstalamos las dependencias y levantamos el servidor
+    command: "bash -c 'rm -rf node_modules && rm package-lock.json && npm install --production && npm start'" # reinstalamos las dependencias y levantamos el servidor
     depends_on:
       - db
     networks:
