@@ -22,13 +22,9 @@ module.exports = {
           }
         });
     });
-
-    // skip = (numero de paginas - 1)*limit;
-    // count / limit = paginas
-    // link => url query con prev, next
-    // res.headers()
   },
   createProducts: (req, res, next) => {
+    console.log('Crear producto: ', req.body);
     const {
       name, price, image, type,
     } = req.body;
@@ -118,6 +114,7 @@ module.exports = {
     }
   },
   deleteProductById: (req, res, next) => {
+    console.log('Delete', req.params.productId)
     const hex = /^[0-9a-fA-F]{24}$/;
     const reqParam = req.params.productId;
     const query = (hex.test(reqParam)) ? { _id: new ObjectID(reqParam) } : { _id: reqParam };

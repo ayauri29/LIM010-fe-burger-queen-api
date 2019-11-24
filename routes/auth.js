@@ -23,6 +23,8 @@ module.exports = (app, nextMain) => {
 		try {
 			const { email, password } = req.body;
 
+			console.log(email, password)
+
 			if (!email || !password) {
 				return next(400);
 			}
