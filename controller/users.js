@@ -42,6 +42,7 @@ module.exports = {
   },
   createUsers: (req, res, next) => {
     const { email, password, roles } = req.body;
+    console.log('Create: ', req.body);
 
     if (!email || !password) {
       return next(400);
@@ -78,6 +79,7 @@ module.exports = {
   },
   getUsersById: (req, res, next) => {
     const reqParam = req.params.uid;
+    console.log('GetById', reqParam);
     const query = getUserOrId(reqParam);
 
     if (!isAdmin(req) && !(isAuthenticated(req).id === reqParam
@@ -98,6 +100,7 @@ module.exports = {
     }
   },
   putUserById: (req, res, next) => {
+    console.log('PutUser: ', req.params.uid);
     // usuario actual a cambiar
     const reqParam = req.params.uid;
     // datos a cambiar

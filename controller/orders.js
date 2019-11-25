@@ -35,7 +35,7 @@ module.exports = {
         userId,
         client,
         products: products.map(p => ({
-          productId: new ObjectID(p.productId),
+          productId: new ObjectID(p.productId), 
           qty: p.qty
         })),
         status: 'pending',
@@ -51,6 +51,7 @@ module.exports = {
     }
   },
   getOrders: (req, res) => {
+    console.log('GetOrder: ')
     const limit = parseInt(req.query.limit, 10) || 10;
     const page = parseInt(req.query.page, 10) || 1;
     model.orders().countDocuments((err, count) => {
@@ -101,11 +102,11 @@ module.exports = {
     } else if (!userId && !client && !products && !status) {
       return next(400)
     }
-    else if (status !== 'canceled' && status !== 'delivered' && status !== 'delivering' && status !== 'pending' && status !== 'preparing'){
+    else if (status !== 'canceled' && status !== 'delivered' && status !== 'delivering' && status !== 'pending' && status !== 'preparing') {
       return next(400);
-    } else{
+    } else {
 
-    model.orders().findOne(query).then(order => {
+      model.orders().findOne(query).then(order => {
         if (!order) {
           return next(404);
         } else {
